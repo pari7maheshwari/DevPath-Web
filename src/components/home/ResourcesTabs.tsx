@@ -9,6 +9,7 @@ import styles from './Resources.module.css';
 import { placementResources } from '@/data/placementResources';
 import { InternshipCalendarModal } from '../resources/InternshipCalendarModal';
 import { RoadmapModal } from '../resources/RoadmapModal';
+import { DeveloperMindsetModal } from '../resources/DeveloperMindsetModal';
 
 interface ResourceItem {
     title: string;
@@ -18,6 +19,7 @@ interface ResourceItem {
     rating: number;
     status: string;
     isDetailed?: boolean;
+    isMindsetModal?: boolean;
     details?: any;
 }
 
@@ -42,6 +44,15 @@ const originalResources: Record<string, ResourceItem[]> = {
         }
     ],
     learning: [
+        {
+            title: "Developer Mindset & Engineering Thinking",
+            description: "A comprehensive core guide on problem-solving, debugging, system design, and the true engineering mindset.",
+            icon: <Brain size={28} />,
+            color: "#6366f1",
+            rating: 5.0,
+            status: 'active',
+            isMindsetModal: true
+        },
         {
             title: "Documentation Hub",
             description: "Comprehensive guides and API references for all supported technologies and frameworks.",
@@ -312,6 +323,7 @@ export default function ResourcesTabs() {
     const [activeSubTab, setActiveSubTab] = useState(aiPromptsCategories[0]);
     const [isInternshipModalOpen, setIsInternshipModalOpen] = useState(false);
     const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState(false);
+    const [isMindsetModalOpen, setIsMindsetModalOpen] = useState(false);
     const [activeRoadmap, setActiveRoadmap] = useState<any>(null);
 
     const searchParams = useSearchParams();
@@ -321,6 +333,9 @@ export default function ResourcesTabs() {
         if (openParam === 'internship-calendar') {
             setActiveMainTab('internships');
             setIsInternshipModalOpen(true);
+        } else if (openParam === 'developer-mindset') {
+            setActiveMainTab('learning');
+            setIsMindsetModalOpen(true);
         }
     }, [searchParams]);
 
@@ -330,6 +345,8 @@ export default function ResourcesTabs() {
         } else if (resource.isDetailed) {
             setActiveRoadmap(resource.details);
             setIsRoadmapModalOpen(true);
+        } else if (resource.isMindsetModal) {
+            setIsMindsetModalOpen(true);
         }
     };
 
@@ -344,6 +361,11 @@ export default function ResourcesTabs() {
                 isOpen={isRoadmapModalOpen}
                 onClose={() => setIsRoadmapModalOpen(false)}
                 roadmap={activeRoadmap}
+            />
+
+            <DeveloperMindsetModal
+                isOpen={isMindsetModalOpen}
+                onClose={() => setIsMindsetModalOpen(false)}
             />
 
             {/* Header */}
