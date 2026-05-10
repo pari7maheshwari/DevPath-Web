@@ -22,9 +22,13 @@ Thank you for your interest in contributing to the DevPath Community Website! We
       cp .env.example .env.local
       ```
     - Create a new Firebase project in the [Firebase Console](https://console.firebase.google.com/).
-    - Enable Authentication, Firestore, and Storage.
+    - Enable **Authentication**, **Firestore**, and **Storage**.
     - Get your Firebase configuration keys from Project Settings and fill them in `.env.local`.
-    - (Optional) Deploy `firestore.rules` and `storage.rules` to your Firebase project to ensure correct permissions.
+    - **IMPORTANT**: Never commit your `.env.local` file. It is already in the `.gitignore` to prevent accidental leaks.
+    - (Optional) Deploy `firestore.rules` and `storage.rules` to your Firebase project to ensure correct permissions:
+      ```bash
+      firebase deploy --only firestore:rules,storage:rules
+      ```
 
 5.  **Run the setup script**:
     This will help you set up your local database permissions and seed initial data.

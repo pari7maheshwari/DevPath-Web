@@ -53,10 +53,32 @@ Ensure you have the following installed:
    ```
 
 3. **Set up Environment Variables:**
-   Copy `.env.example` to `.env.local` and fill in your Firebase credentials.
+   Copy `.env.example` to `.env.local`:
    ```bash
    cp .env.example .env.local
    ```
+   Open `.env.local` and fill in your Firebase credentials.
+
+### 🔥 Local Firebase Configuration
+
+To run this project locally, you'll need your own Firebase project:
+
+1. **Create a Firebase Project**: Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project.
+2. **Enable Services**:
+   - **Authentication**: Enable Email/Password or Google provider.
+   - **Firestore**: Create a database in test mode (or apply the rules in `firestore.rules`).
+   - **Storage**: Enable default bucket (or apply the rules in `storage.rules`).
+3. **Register a Web App**: Add a "Web App" to your Firebase project to get your configuration object.
+4. **Fill `.env.local`**: Copy the values from your Firebase config object into your `.env.local` file.
+5. **Install Firebase CLI**: `npm install -g firebase-tools`
+6. **Login & Use Project**:
+   ```bash
+   firebase login
+   firebase use --add <your-project-id>
+   ```
+
+> [!CAUTION]
+> **Security Reminder**: Never commit your `.env.local` file. It contains sensitive keys that should remain private to your local environment.
 
 4. **Run the development server:**
    ```bash
