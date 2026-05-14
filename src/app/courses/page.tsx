@@ -220,9 +220,12 @@ export default function CoursesPage() {
                             </ul>
 
                             <div className="mt-8 pt-8 border-t border-white/10">
-                                <button className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 group">
+                                <button 
+                                    className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 group"
+                                    aria-label="Get notified when the DevPath courses launch"
+                                >
                                     Get Notified When We Launch
-                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                                 </button>
                             </div>
                         </motion.div>
