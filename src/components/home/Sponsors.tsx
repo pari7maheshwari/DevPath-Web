@@ -7,7 +7,7 @@ export default function Sponsors() {
     const communitySponsors = [
         {
             name: "OSCG",
-            logo: "https://raw.githubusercontent.com/YashKrTripathi/DevPath-Web/master/src/assets/oscg26.png",
+            logo: "https://raw.githubusercontent.com/devpathindcommunity-india/DevPath-Web/master/src/assets/oscg26.png",
             url: "https://osconnect.org/"
         },
         {
