@@ -198,3 +198,13 @@
         padding: 24px;
     }
 }
+
+.highlight {
+    background-color: transparent;
+    color: #00f5ff;
+    text-shadow: 0 0 8px #00f5ff;
+    border-radius: 2px;
+    padding: 0 1px;
+    display: inline;
+    font-style: normal;
+}
