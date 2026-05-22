@@ -8,6 +8,7 @@ import { collection, writeBatch, doc, serverTimestamp, increment } from 'firebas
 import { db } from '@/lib/firebase';
 import { POINTS } from '@/lib/points';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
@@ -225,7 +226,7 @@ export default function ProjectUploadModal({ isOpen, onClose, userId, userEmail,
                                 <div className="w-full px-4 py-2 bg-background border border-border rounded-lg min-h-[150px] prose prose-invert max-w-none text-sm overflow-y-auto">
                                     {description ? (
                                         <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
-                                            {description}
+                                            {DOMPurify.sanitize(description)}
                                         </ReactMarkdown>
                                     ) : (
                                         <span className="text-muted-foreground italic">Nothing to preview</span>
