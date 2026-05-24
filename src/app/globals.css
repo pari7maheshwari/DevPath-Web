@@ -345,3 +345,7 @@ a {
 .markdown-body [width] {
   width: auto;
 }
+/* GSSoC'26 Issue #31: Fix abrupt page snap when navigating mobile anchor links */
+html {
+  scroll-behavior: smooth !important;
+}

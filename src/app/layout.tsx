@@ -1,3 +1,4 @@
+import MaintenanceBlocker from '@/components/layout/MaintenanceBlocker';
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Barlow_Condensed } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
@@ -11,6 +12,7 @@ import MaintenanceBanner from '@/components/layout/MaintenanceBanner';
 import BackgroundMesh from '@/components/layout/BackgroundMesh';
 import PageWrapper from '@/components/layout/PageWrapper';
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { FloatingAssistant } from "@/components/assistant/floating-assistant";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
@@ -52,7 +54,7 @@ export const metadata: Metadata = {
     siteName: "DevPath Community",
     images: [
       {
-        url: "/DevPath-logo.png",
+        url: "/DevPath-logo.webp",
         width: 800,
         height: 600,
         alt: "DevPath Community Logo",
@@ -63,12 +65,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DevPath Community",
     description: "Join 50,000+ developers accelerating their coding skills through structured paths, real projects, and an active community.",
-    images: ["/DevPath-logo.png"],
+    images: ["/DevPath-logo.webp"],
     creator: "@DevPath_Community", // Assuming handle
   },
   icons: {
-    icon: '/DevPath-logo.png',
-    apple: '/DevPath-logo.png',
+    icon: '/DevPath-logo.webp',
+    apple: '/DevPath-logo.webp',
   },
 };
 
@@ -77,7 +79,7 @@ const jsonLd = {
   "@type": "Organization",
   "name": "DevPath Community",
   "url": "https://devpath-website.web.app",
-  "logo": "https://devpath-website.web.app/DevPath-logo.png",
+  "logo": "https://devpath-website.web.app/DevPath-logo.webp",
   "sameAs": [
     "https://twitter.com/DevPath_Community",
     "https://www.linkedin.com/company/devpath-community",
@@ -108,8 +110,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+             type="application/ld+json"
+             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
           <AuthProvider>
             <GamificationProvider>
@@ -118,10 +120,16 @@ export default function RootLayout({
                 {/* <BackgroundMesh /> */}
                 <MaintenanceBanner />
                 <Navbar />
-                <PageWrapper>
-                  {children}
-                </PageWrapper>
+                
+                {/* YAHAN HUMNE BLOCKER ADD KIYA HAI */}
+                <MaintenanceBlocker>
+                  <PageWrapper>
+                    {children}
+                  </PageWrapper>
+                </MaintenanceBlocker>
+                
                 <FooterWrapper />
+                <FloatingAssistant />
               </RealTimeProvider>
             </GamificationProvider>
           </AuthProvider>

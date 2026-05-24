@@ -12,9 +12,11 @@ import ProjectUploadModal from '@/components/projects/ProjectUploadModal';
 import ProjectCard from '@/components/projects/ProjectCard';
 import Achievements from '@/components/profile/Achievements';
 import Rewards from '@/components/profile/Rewards';
+import DevCard from '@/components/profile/DevCard';
 import FollowButton from '@/components/profile/FollowButton';
 import LoginHeatmap from '@/components/profile/LoginHeatmap';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { collection, query, where, orderBy, getDocs, doc, updateDoc, arrayUnion, increment } from 'firebase/firestore';
@@ -22,6 +24,7 @@ import { db } from '@/lib/firebase';
 import { calculateLevel } from '@/lib/points';
 import { getEmbedUrl } from '@/lib/utils';
 import { GIT_FALLBACK_STATS } from '@/lib/github';
+import { getSafeSocialUrl, sanitizeSocialLinks } from '@/lib/safe-social-url';
 
 /**
  * UserProfile component renders the main dashboard profile page for authenticated developers.
@@ -87,7 +90,23 @@ export default function UserProfile() {
     const [showFollowersModal, setShowFollowersModal] = useState(false);
     const [showFollowingModal, setShowFollowingModal] = useState(false);
     const [modalUsers, setModalUsers] = useState<any[]>([]);
-    const [loadingModalUsers, setLoadingModalUsers] = useState(false);
+    const [loadingModalUsers, setLoadingModalUsers] = useState(false); 
+
+    // Sync aboutContent when user data loads from AuthContext
+useEffect(() => {
+    if (user?.aboutMarkdown) setAboutContent(user.aboutMarkdown);
+}, [user?.aboutMarkdown]);
+
+// Sync socialLinks when user data loads from AuthContext
+useEffect(() => {
+    if (user) {
+        setSocialLinks({
+            github: user.github || '',
+            linkedin: user.linkedin || '',
+            instagram: user.instagram || ''
+        });
+    }
+}, [user?.github, user?.linkedin, user?.instagram]);
 
     useEffect(() => {
         if (user?.uid) {
@@ -174,7 +193,7 @@ export default function UserProfile() {
 
     const handleShareProfile = () => {
         if (!user) return;
-        const url = `${window.location.origin}/u?uid=${user.uid}`;
+        const url = `${window.location.origin}/u/${user.uid}`;
         navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -198,16 +217,17 @@ export default function UserProfile() {
     const handleSaveAbout = async () => {
         setIsSaving(true);
         try {
+            const safeSocialLinks = sanitizeSocialLinks(socialLinks);
+
             await updateUserProfile({
                 aboutMarkdown: aboutContent,
-                github: socialLinks.github,
-                linkedin: socialLinks.linkedin,
-                instagram: socialLinks.instagram
+                ...safeSocialLinks
             });
+            setSocialLinks(safeSocialLinks);
             setIsEditingAbout(false);
         } catch (error) {
             console.error("Failed to update profile:", error);
-            alert("Failed to update profile. Please try again.");
+            alert(error instanceof Error ? error.message : "Failed to update profile. Please try again.");
         } finally {
             setIsSaving(false);
         }
@@ -275,6 +295,12 @@ export default function UserProfile() {
             </div>
         );
     }
+
+    const safeSocialLinks = {
+        github: getSafeSocialUrl(user.github, 'github'),
+        linkedin: getSafeSocialUrl(user.linkedin, 'linkedin'),
+        instagram: getSafeSocialUrl(user.instagram, 'instagram')
+    };
 
     return (
         <div className="min-h-screen bg-background text-foreground pb-8 px-4 md:px-8">
@@ -370,14 +396,23 @@ export default function UserProfile() {
                             )}
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Calendar size={16} />
-                                <span>Joined Dec 2023</span>
+                                <span>Joined {(() => {
+                                    if (!user.createdAt) return 'Dec 2023';
+                                    try {
+                                        const d = new Date(user.createdAt.seconds ? user.createdAt.seconds * 1000 : user.createdAt);
+                                        if (isNaN(d.getTime())) return 'Dec 2023';
+                                        return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+                                    } catch (e) {
+                                        return 'Dec 2023';
+                                    }
+                                })()}</span>
                             </div>
                         </div>
 
                         <div className="flex gap-3 mt-6">
-                            {user.github && <a href={user.github} target="_blank" className="text-muted-foreground hover:text-foreground"><Github size={20} /></a>}
-                            {user.linkedin && <a href={user.linkedin} target="_blank" className="text-muted-foreground hover:text-foreground"><Linkedin size={20} /></a>}
-                            {user.instagram && <a href={user.instagram} target="_blank" className="text-muted-foreground hover:text-foreground"><Instagram size={20} /></a>}
+                            {safeSocialLinks.github && <a href={safeSocialLinks.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Github size={20} /></a>}
+                            {safeSocialLinks.linkedin && <a href={safeSocialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Linkedin size={20} /></a>}
+                            {safeSocialLinks.instagram && <a href={safeSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Instagram size={20} /></a>}
                         </div>
                     </div>
 
@@ -564,14 +599,14 @@ export default function UserProfile() {
                                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="w-full">
                                         <Image
-                                            alt="GitHub Stats"
+                                            alt={`${user.githubStats.username} GitHub profile stats in dark theme`}
                                             src={`https://github-readme-stats-salesp07.vercel.app/api?username=${user.githubStats.username}&count_private=true&show_icons=true&title_color=00bfbf&icon_color=00bfbf&text_color=c9d1d9&bg_color=0d1117&rank_icon=github&border_radius=20&hide_border=true`}
                                             width={467}
                                             height={195}
                                             className="w-full h-auto hidden dark:block"
                                         />
                                         <Image
-                                            alt="GitHub Stats"
+                                            alt={`${user.githubStats.username} GitHub profile stats in light theme`}
                                             src={`https://github-readme-stats-salesp07.vercel.app/api?username=${user.githubStats.username}&count_private=true&show_icons=true&title_color=000000&icon_color=000000&text_color=000000&bg_color=ffffff&rank_icon=github&border_radius=20&hide_border=true`}
                                             width={467}
                                             height={195}
@@ -580,14 +615,14 @@ export default function UserProfile() {
                                     </div>
                                     <div className="w-full">
                                         <Image
-                                            alt="GitHub Streak Stats"
+                                            alt={`${user.githubStats.username} GitHub contribution streak in dark theme`}
                                             src={`https://github-readme-streak-stats-salesp07.vercel.app/?user=${user.githubStats.username}&count_private=true&border_radius=20&ring=00bfbf&stroke=c9d1d9&background=0d1117&fire=00bfbf&currStreakNum=00bfbf&sideNums=00bfbf&datesside=00bfbf&Labelscurr=00bfbf&currStreakLabel=00bfbf&sideLabels=00bfbf&dates=c9d1d9&border=c9d1d9&hide_border=true`}
                                             width={467}
                                             height={195}
                                             className="w-full h-auto hidden dark:block"
                                         />
                                         <Image
-                                            alt="GitHub Streak Stats"
+                                            alt={`${user.githubStats.username} GitHub contribution streak in light theme`}
                                             src={`https://github-readme-streak-stats-salesp07.vercel.app/?user=${user.githubStats.username}&count_private=true&border_radius=20&ring=000000&stroke=000000&background=ffffff&fire=ff0000&currStreakNum=000000&sideNums=000000&datesside=000000&Labelscurr=000000&currStreakLabel=000000&sideLabels=000000&dates=000000&border=000000&hide_border=true`}
                                             width={467}
                                             height={195}
@@ -754,7 +789,9 @@ export default function UserProfile() {
                                 ) : (
                                     <div className="min-h-[300px] p-4 bg-background border border-border rounded-lg">
                                         <div className="markdown-body">
-                                            <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>{aboutContent}</ReactMarkdown>
+                                            <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
+                                                {DOMPurify.sanitize(aboutContent)}
+                                            </ReactMarkdown>
                                         </div>
                                     </div>
                                 )}
@@ -766,7 +803,7 @@ export default function UserProfile() {
                         ) : (
                             <div className="markdown-body">
                                 <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
-                                    {user.aboutMarkdown || "No description provided yet."}
+                                    {DOMPurify.sanitize(user.aboutMarkdown || "No description provided yet.")}
                                 </ReactMarkdown>
                             </div>
                         )}
@@ -779,6 +816,16 @@ export default function UserProfile() {
 
                     {/* GitHub Stats & Achievements Component */}
                     <Achievements />
+
+                    {/* Dev Profile Share Card */}
+                    <div>
+                        <div className="flex items-center gap-2 mb-5">
+                            <Share2 size={18} className="text-primary" />
+                            <h3 className="text-xl font-bold">Your Dev Card</h3>
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold ml-1">New</span>
+                        </div>
+                        <DevCard user={user} />
+                    </div>
 
 
 
@@ -899,7 +946,7 @@ export default function UserProfile() {
                                             <h4 className="font-bold truncate">{u.name}</h4>
                                             <p className="text-xs text-muted-foreground truncate">@{u.email?.split('@')[0]}</p>
                                         </div>
-                                        <a href={`/u?uid=${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
+                                        <a href={`/u/${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
                                             View
                                         </a>
                                     </div>
@@ -953,7 +1000,7 @@ export default function UserProfile() {
 
                             {/* Description */}
                             <div className="prose dark:prose-invert max-w-none">
-                                <div dangerouslySetInnerHTML={{ __html: selectedProject.description }} />
+                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProject.description) }} />
                             </div>
 
                             {/* Links & Skills */}

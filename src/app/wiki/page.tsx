@@ -1,11 +1,14 @@
 "use client";
-
-import { useState, useEffect } from 'react';
-import { Search, ChevronRight, Book, Code, FileText, HelpCircle, ThumbsUp, ThumbsDown, Github, Users, MapPin, MessageCircle, Calendar } from 'lucide-react';
+import Fuse from 'fuse.js';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, ChevronRight, Book, Code, FileText, HelpCircle, ThumbsUp, ThumbsDown, Github, Users, MapPin, MessageCircle, Calendar, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import styles from './Wiki.module.css';
 
 import { wikiContent } from '@/data/wikiContent';
+import { wikiSearchIndex } from '@/data/wikiSearchIndex';
+import { searchArticles } from '@/utils/wikiSearch';
+import WikiSearchResults from './WikiSearchResults';
 
 const categories = [
     {
@@ -38,9 +41,72 @@ const categories = [
     }
 ];
 
+/**
+ * Converts a kebab-case slug into a human-readable Title Case label.
+ * e.g. "community-offerings" → "Community Offerings"
+ */
+function slugToLabel(slug: string): string {
+    return slug
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 export default function WikiPage() {
     const [activeArticle, setActiveArticle] = useState("intro");
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState(""); 
+
+    // Add this below your useState declarations
+const allItems = categories.flatMap(c => c.items.map(i => ({ ...i, category: c.title })));
+const fuse = new Fuse(allItems, { keys: ['title'], threshold: 0.4 ,  includeMatches: true});
+
+const fuseResults = fuse.search(searchQuery);  {/* ← line 57 starts here */}
+const matchMap = new Map(
+    fuseResults.map(r => [
+        r.item.id,
+        r.matches?.find(m => m.key === 'title')?.indices
+    ])
+);
+const filteredCategories = searchQuery.trim()
+    ? (() => {
+        const matched = new Set(fuseResults.map(r => r.item.id));
+        return categories
+            .map(c => ({ ...c, items: c.items.filter(i => matched.has(i.id)) }))
+            .filter(c => c.items.length > 0);
+    })()
+    : categories;
+
+
+function highlightMatch(text: string, indices?: readonly [number, number][]) {
+    if (!indices || indices.length === 0) return text;
+    const result = [];
+    let lastIndex = 0;
+    for (const [start, end] of indices) {
+        result.push(text.slice(lastIndex, start));
+        result.push(
+            <mark key={start} className={styles.highlight}>
+                {text.slice(start, end + 1)}
+            </mark>
+        );
+        lastIndex = end + 1;
+    }
+    result.push(text.slice(lastIndex));
+    return <span style={{ whiteSpace: 'normal' }}>{result}</span>;
+}
+
+    // Fuzzy search results (title + keywords + description)
+    const searchResults = useMemo(
+        () => searchArticles(wikiSearchIndex, searchQuery),
+        [searchQuery]
+    );
+
+    const isSearching = searchQuery.trim().length > 0;
+
+    // When user clicks a search result, open that article and clear search
+    function handleResultSelect(id: string) {
+        setActiveArticle(id);
+        setSearchQuery("");
+    }
 
     useEffect(() => {
         const articleBody = document.querySelector(`.${styles.articleBody}`);
@@ -83,6 +149,7 @@ export default function WikiPage() {
     return (
         <div className={styles.container}>
             <aside className={styles.sidebar}>
+                {/* Search input */}
                 <div className={styles.searchContainer}>
                     <Search className={styles.searchIcon} size={16} />
                     <input
@@ -91,35 +158,66 @@ export default function WikiPage() {
                         className={styles.searchInput}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        aria-label="Search wiki articles"
                     />
+                    {isSearching && (
+                        <button
+                            className={styles.clearSearch}
+                            onClick={() => setSearchQuery("")}
+                            aria-label="Clear search"
+                        >
+                            <X size={14} />
+                        </button>
+                    )}
                 </div>
 
-                <nav>
-                    {categories.map((category, index) => (
-                        <div key={index} className={styles.category}>
-                            <h3 className={styles.categoryTitle}>{category.title}</h3>
-                            {category.items.map(item => (
-                                <div
-                                    key={item.id}
-                                    className={`${styles.navLink} ${activeArticle === item.id ? styles.active : ''}`}
-                                    onClick={() => setActiveArticle(item.id)}
-                                >
-                                    {item.icon}
-                                    {item.title}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </nav>
+                {/* Sidebar nav — hidden when search results are showing */}
+                {!isSearching && (
+                    <nav>
+                        {filteredCategories.map((category, index) => (
+                            <div key={index} className={styles.category}>
+                                <h3 className={styles.categoryTitle}>{category.title}</h3>
+                                {category.items.map(item => (
+                                    <div
+                                        key={item.id}
+                                        className={`${styles.navLink} ${activeArticle === item.id ? styles.active : ''}`}
+                                        onClick={() => setActiveArticle(item.id)}
+                                    >
+                                        {item.icon}
+                                        {highlightMatch(item.title, matchMap.get(item.id))}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </nav>
+                )}
+
+                {/* Fuzzy search results in the sidebar */}
+                {isSearching && (
+                    <WikiSearchResults
+                        results={searchResults}
+                        query={searchQuery}
+                        onSelect={handleResultSelect}
+                    />
+                )}
             </aside>
 
+            {/* Main content — unchanged */}
             <main className={styles.content}>
                 <div className={styles.breadcrumb}>
                     <span>Docs</span>
                     <ChevronRight size={14} />
-                    <span>{categories.find(c => c.items.some(i => i.id === activeArticle))?.title}</span>
+                    {/* Defensive: fall back to a formatted slug label if no category matches */}
+                    <span>
+                        {categories.find(c => c.items.some(i => i.id === activeArticle))?.title
+                            ?? slugToLabel(activeArticle)}
+                    </span>
                     <ChevronRight size={14} />
-                    <span>{wikiContent[activeArticle]?.title}</span>
+                    {/* Defensive: fall back to a formatted slug label if wikiContent entry is missing */}
+                    <span>
+                        {wikiContent[activeArticle]?.title
+                            ?? slugToLabel(activeArticle)}
+                    </span>
                 </div>
 
                 <article>

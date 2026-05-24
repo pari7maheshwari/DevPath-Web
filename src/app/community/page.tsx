@@ -10,6 +10,7 @@ import { getEmbedUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import CreateDiscussionModal from '@/components/community/CreateDiscussionModal';
 import ProjectCard from '@/components/projects/ProjectCard';
+import DOMPurify from 'dompurify';
 
 export default function CommunityPage() {
     const { user } = useAuth();
@@ -258,7 +259,7 @@ export default function CommunityPage() {
 
                             {/* Description */}
                             <div className="prose dark:prose-invert max-w-none">
-                                <div dangerouslySetInnerHTML={{ __html: selectedProject.description }} />
+                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProject.description) }} />
                             </div>
 
                             {/* Links & Skills */}

@@ -4,17 +4,25 @@ import { Bell } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/context/AuthContext"
 import { db } from "@/lib/firebase"
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, writeBatch, limit } from "firebase/firestore"
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, writeBatch, limit, Timestamp } from "firebase/firestore"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 interface Notification {
     id: string
     title: string
     message: string
     image?: string
-    createdAt: any
+    createdAt?: Timestamp
     read: boolean
     type: 'achievement' | 'message' | 'event' | 'system'
+}
+
+const notificationTypeClasses: Record<Notification['type'], string> = {
+    achievement: "bg-gradient-to-r from-yellow-500 to-orange-500",
+    event: "bg-gradient-to-r from-cyan-500 to-blue-500",
+    message: "bg-gradient-to-r from-purple-500 to-pink-500",
+    system: "bg-gradient-to-r from-gray-500 to-gray-600",
 }
 
 export function NotificationDropdown() {
@@ -40,7 +48,12 @@ export function NotificationDropdown() {
     }, [isOpen, closePanel])
 
     useEffect(() => {
-        if (!user) return;
+        if (!user) {
+            // Clear sensitive state on sign-out / user switch to avoid showing stale notifications.
+            setNotifications([])
+            setIsOpen(false)
+            return
+        }
 
         const q = query(
             collection(db, 'members', user.uid, 'notifications'),
@@ -96,7 +109,7 @@ export function NotificationDropdown() {
     }
 
     return (
-        <div className="relative">
+        <div className="sm:relative">
             {/* Bell Button */}
             <button
                 ref={triggerRef}
@@ -136,7 +149,7 @@ export function NotificationDropdown() {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute right-0 top-full mt-2 w-96 bg-white/95 dark:bg-[#0f1419]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-2xl z-50 max-h-[600px] overflow-hidden"
+                            className="absolute left-0 right-0 sm:left-auto sm:right-0 top-full mt-4 sm:mt-2 w-auto sm:w-96 origin-top sm:origin-top-right bg-white/95 dark:bg-[#0f1419]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-2xl z-50 max-h-[600px] overflow-hidden"
                             role="region"
                             aria-label="Notifications"
                             aria-live="polite"
@@ -168,7 +181,10 @@ export function NotificationDropdown() {
                                             key={notif.id}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            className={`p-4 border-b border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-500 ${!notif.read ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                                            className={cn(
+                                                "p-4 border-b border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-500",
+                                                !notif.read && "bg-black/5 dark:bg-white/5"
+                                            )}
                                             onClick={() => markAsRead(notif.id)}
                                             role="button"
                                             tabIndex={0}
@@ -182,11 +198,12 @@ export function NotificationDropdown() {
                                         >
                                             <div className="flex items-start gap-3">
                                                 {/* Type Icon */}
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white ${notif.type === 'achievement' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                                                    notif.type === 'event' ? 'bg-gradient-to-r from-cyan-500 to-blue-500' :
-                                                        notif.type === 'message' ? 'bg-gradient-to-r from-purple-500 to-pink-500' :
-                                                            'bg-gradient-to-r from-gray-500 to-gray-600'
-                                                    }`}>
+                                                <div
+                                                    className={cn(
+                                                        "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white",
+                                                        notificationTypeClasses[notif.type || 'system']
+                                                    )}
+                                                >
                                                     {notif.type === 'achievement' && '🏆'}
                                                     {notif.type === 'event' && '📅'}
                                                     {notif.type === 'message' && '💬'}

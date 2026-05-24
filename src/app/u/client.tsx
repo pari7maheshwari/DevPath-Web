@@ -11,9 +11,11 @@ import styles from '@/components/profile/Profile.module.css';
 import Rewards from '@/components/profile/Rewards';
 import FollowButton from '@/components/profile/FollowButton';
 import LoginHeatmap from '@/components/profile/LoginHeatmap';
-import { useSearchParams } from 'next/navigation';
+import DOMPurify from 'dompurify';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { GIT_FALLBACK_STATS } from '@/lib/github';
+import { getSafeSocialUrl } from '@/lib/safe-social-url';
 
 interface PublicUser {
     id?: string;
@@ -79,10 +81,8 @@ interface Project {
     createdAt: any;
 }
 
-function ProfileContent() {
-    const searchParams = useSearchParams();
+function ProfileContent({ uid }: { uid: string }) {
     const { user: currentUser } = useAuth();
-    const [uid, setUid] = useState<string | null>(null);
     const [user, setUser] = useState<PublicUser | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -98,15 +98,17 @@ function ProfileContent() {
     };
 
     useEffect(() => {
-        const paramUid = searchParams.get('uid');
-        if (paramUid) {
-            setUid(paramUid);
-        }
-    }, [searchParams]);
-
-    useEffect(() => {
         const fetchUserAndProjects = async () => {
-            if (!uid) return;
+            if (!uid) {
+                setError('No user specified.');
+                setLoading(false);
+                return;
+            }
+            if (uid.length < 3 || uid.length > 128 || /[<>"']/.test(uid)) {
+                setError('Invalid user identifier.');
+                setLoading(false);
+                return;
+            }
             setLoading(true);
             setError('');
 
@@ -288,8 +290,17 @@ function ProfileContent() {
         fetchUserAndProjects();
     }, [uid]);
 
+    useEffect(() => {
+        if (!uid) return;
+        const link = document.createElement('link');
+        link.rel = 'canonical';
+        link.href = `${window.location.origin}/u/${uid}`;
+        document.head.appendChild(link);
+        return () => { link.remove(); };
+    }, [uid]);
+
     const handleShareProfile = async () => {
-        const profileUrl = window.location.href;
+        const profileUrl = `${window.location.origin}/u/${uid}`;
         try {
             await navigator.clipboard.writeText(profileUrl);
             setCopied(true);
@@ -364,6 +375,11 @@ function ProfileContent() {
 
     const showMobile = user.privacySettings?.showMobile;
     const showLocation = user.privacySettings?.showLocation ?? true;
+    const safeSocialLinks = {
+        github: getSafeSocialUrl(user.github, 'github'),
+        linkedin: getSafeSocialUrl(user.linkedin, 'linkedin'),
+        instagram: getSafeSocialUrl(user.instagram, 'instagram')
+    };
 
     return (
         <section className={styles.profile}>
@@ -420,18 +436,18 @@ function ProfileContent() {
                             </div>
 
                             <div className="flex flex-wrap gap-3 mt-3">
-                                {user.github && (
-                                    <a href={user.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                                {safeSocialLinks.github && (
+                                    <a href={safeSocialLinks.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
                                         <Github size={14} /> GitHub
                                     </a>
                                 )}
-                                {user.linkedin && (
-                                    <a href={user.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                                {safeSocialLinks.linkedin && (
+                                    <a href={safeSocialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
                                         <Linkedin size={14} /> LinkedIn
                                     </a>
                                 )}
-                                {user.instagram && (
-                                    <a href={user.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                                {safeSocialLinks.instagram && (
+                                    <a href={safeSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
                                         <Instagram size={14} /> Instagram
                                     </a>
                                 )}
@@ -525,14 +541,14 @@ function ProfileContent() {
                                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="w-full">
                                         <Image
-                                            alt="GitHub Stats"
+                                            alt={`${user.githubStats.username} GitHub profile stats in dark theme`}
                                             src={`https://github-readme-stats-salesp07.vercel.app/api?username=${user.githubStats.username}&count_private=true&show_icons=true&title_color=00bfbf&icon_color=00bfbf&text_color=c9d1d9&bg_color=0d1117&rank_icon=github&border_radius=20&hide_border=true`}
                                             width={467}
                                             height={195}
                                             className="w-full h-auto hidden dark:block"
                                         />
                                         <Image
-                                            alt="GitHub Stats"
+                                            alt={`${user.githubStats.username} GitHub profile stats in light theme`}
                                             src={`https://github-readme-stats-salesp07.vercel.app/api?username=${user.githubStats.username}&count_private=true&show_icons=true&title_color=000000&icon_color=000000&text_color=000000&bg_color=ffffff&rank_icon=github&border_radius=20&hide_border=true`}
                                             width={467}
                                             height={195}
@@ -541,14 +557,14 @@ function ProfileContent() {
                                     </div>
                                     <div className="w-full">
                                         <Image
-                                            alt="GitHub Streak Stats"
+                                            alt={`${user.githubStats.username} GitHub contribution streak in dark theme`}
                                             src={`https://github-readme-streak-stats-salesp07.vercel.app/?user=${user.githubStats.username}&count_private=true&border_radius=20&ring=00bfbf&stroke=c9d1d9&background=0d1117&fire=00bfbf&currStreakNum=00bfbf&sideNums=00bfbf&datesside=00bfbf&Labelscurr=00bfbf&currStreakLabel=00bfbf&sideLabels=00bfbf&dates=c9d1d9&border=c9d1d9&hide_border=true`}
                                             width={467}
                                             height={195}
                                             className="w-full h-auto hidden dark:block"
                                         />
                                         <Image
-                                            alt="GitHub Streak Stats"
+                                            alt={`${user.githubStats.username} GitHub contribution streak in light theme`}
                                             src={`https://github-readme-streak-stats-salesp07.vercel.app/?user=${user.githubStats.username}&count_private=true&border_radius=20&ring=000000&stroke=000000&background=ffffff&fire=ff0000&currStreakNum=000000&sideNums=000000&datesside=000000&Labelscurr=000000&currStreakLabel=000000&sideLabels=000000&dates=000000&border=000000&hide_border=true`}
                                             width={467}
                                             height={195}
@@ -854,7 +870,7 @@ function ProfileContent() {
 
                                 {/* Description */}
                                 <div className="prose dark:prose-invert max-w-none">
-                                    <div dangerouslySetInnerHTML={{ __html: selectedProject.description }} />
+                                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProject.description) }} />
                                 </div>
 
                                 {/* Links & Skills */}
@@ -886,10 +902,49 @@ function ProfileContent() {
     );
 }
 
-export default function ProfileClient() {
+function isValidUid(value: string): boolean {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.length < 3 || trimmed.length > 128) return false;
+    if (/[<>"']/.test(trimmed)) return false;
+    return true;
+}
+
+function SearchParamsFallback() {
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const rawUid = searchParams.get('uid') || (pathname.startsWith('/u/') ? pathname.slice(3).split('/')[0].split('?')[0] : null);
+    const uid = rawUid?.trim() || null;
+
+    if (!uid) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+                <UserIcon size={64} className="text-muted-foreground mb-4" />
+                <h1 className="text-2xl font-bold mb-2">No User Specified</h1>
+                <p className="text-muted-foreground">Please provide a user ID to view a profile.</p>
+            </div>
+        );
+    }
+
+    if (!isValidUid(uid)) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+                <UserIcon size={64} className="text-muted-foreground mb-4" />
+                <h1 className="text-2xl font-bold mb-2">Invalid Profile</h1>
+                <p className="text-muted-foreground">The requested profile identifier is invalid.</p>
+            </div>
+        );
+    }
+
+    return <ProfileContent uid={uid} />;
+}
+
+export default function ProfileClient({ uid }: { uid?: string }) {
+    if (uid) {
+        return <ProfileContent uid={uid} />;
+    }
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div></div>}>
-            <ProfileContent />
+            <SearchParamsFallback />
         </Suspense>
     );
 }

@@ -1,21 +1,33 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react';
-import { Trophy, Zap, ArrowUpCircle, X } from 'lucide-react';
+import { Trophy, Zap, ArrowUpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 export type NotificationType = 'xp' | 'achievement' | 'level-up';
+
+interface GamificationNotification {
+    id: number;
+    title: string;
+    subtitle: string;
+    type: NotificationType;
+}
 
 interface GamificationContextType {
     xp: number;
     level: number;
-    addXp: (amount: number, reason: string, type?: NotificationType) => void;
-    notifications: { id: number; title: string; subtitle: string; type: NotificationType }[];
+    addXp: (amount: number, reason: string, type?: NotificationType, options?: AddXpOptions) => void;
+    notifications: GamificationNotification[];
 }
 
 const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
-const ToastMessage = ({ n, removeNotification }: { n: any, removeNotification: (id: number) => void }) => {
+interface AddXpOptions {
+    persist?: boolean;
+}
+
+const ToastMessage = ({ n, removeNotification }: { n: GamificationNotification, removeNotification: (id: number) => void }) => {
     let Icon = Zap;
     let colorTheme = '#06b6d4'; // Cyan
     let bgTheme = 'rgba(6, 182, 212, 0.1)';
@@ -109,47 +121,56 @@ const ToastMessage = ({ n, removeNotification }: { n: any, removeNotification: (
 };
 
 export function GamificationProvider({ children }: { children: React.ReactNode }) {
-    const [xp, setXp] = useState(125400);
-    const [notifications, setNotifications] = useState<{ id: number; title: string; subtitle: string; type: NotificationType }[]>([]);
+    const { user, awardPoints } = useAuth();
+    const [notifications, setNotifications] = useState<GamificationNotification[]>([]);
 
+    const xp = user?.points || 0;
     const level = Math.floor(Math.sqrt(xp / 100));
 
     const removeNotification = (id: number) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     };
 
-    const addXp = (amount: number, reason: string, type: NotificationType = 'xp') => {
-        setXp(prev => {
-            const newXp = prev + amount;
-            const currentLevel = Math.floor(Math.sqrt(prev / 100));
-            const newLevel = Math.floor(Math.sqrt(newXp / 100));
-            
-            const baseId = Date.now();
-            const newNotifications = [{ 
-                id: baseId, 
-                title: type === 'achievement' ? 'Achievement Unlocked' : `+${amount} XP`, 
-                subtitle: reason, 
-                type 
-            }];
-            
-            if (newLevel > currentLevel) {
-                newNotifications.push({ 
-                    id: baseId + 1, 
-                    title: `Level Up!`, 
-                    subtitle: `You reached Level ${newLevel}`, 
-                    type: 'level-up' 
-                });
-            }
-            
-            setNotifications(prevNotifs => [...prevNotifs, ...newNotifications]);
-            
-            newNotifications.forEach(n => {
-                setTimeout(() => {
-                    removeNotification(n.id);
-                }, 4000);
+    const addXp = (
+        amount: number,
+        reason: string,
+        type: NotificationType = 'xp',
+        options: AddXpOptions = {}
+    ) => {
+        const shouldPersist = options.persist !== false;
+        const currentXp = user?.points || 0;
+        const newXp = currentXp + amount;
+        const currentLevel = Math.floor(Math.sqrt(currentXp / 100));
+        const newLevel = Math.floor(Math.sqrt(newXp / 100));
+        
+        if (user && shouldPersist) {
+            // Persist XP using atomic increments to avoid overwriting concurrent updates.
+            awardPoints(amount).catch(err => console.error("Failed to award XP", err));
+        }
+
+        const baseId = Date.now();
+        const newNotifications = [{ 
+            id: baseId, 
+            title: type === 'achievement' ? 'Achievement Unlocked' : `+${amount} XP`, 
+            subtitle: reason, 
+            type 
+        }];
+        
+        if (user && newLevel > currentLevel) {
+            newNotifications.push({ 
+                id: baseId + 1, 
+                title: `Level Up!`, 
+                subtitle: `You reached Level ${newLevel}`, 
+                type: 'level-up' 
             });
-            
-            return newXp;
+        }
+        
+        setNotifications(prevNotifs => [...prevNotifs, ...newNotifications]);
+        
+        newNotifications.forEach(n => {
+            setTimeout(() => {
+                removeNotification(n.id);
+            }, 4000);
         });
     };
 
@@ -175,4 +196,3 @@ export function useGamification() {
     }
     return context;
 }
-

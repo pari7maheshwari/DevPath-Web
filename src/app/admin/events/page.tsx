@@ -107,7 +107,13 @@ export default function AdminEventsPage() {
                         <div key={event.id} className="bg-card border border-border rounded-xl overflow-hidden flex flex-col">
                             <div className="h-48 bg-muted relative">
                                 {event.image ? (
-                                    <Image src={event.image} alt={event.title} fill className="object-cover" />
+                                    <Image
+                                        src={event.image}
+                                        alt={event.title || 'Event Image'}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                    />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                                         <ImageIcon size={48} />

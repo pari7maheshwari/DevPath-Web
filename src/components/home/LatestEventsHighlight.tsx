@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Calendar, MapPin, ExternalLink, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { db } from '@/lib/firebase';
@@ -104,9 +105,13 @@ export default function LatestEventsHighlight({ className }: { className?: strin
                     {/* Image/Visual - Hidden on smaller screens if needed or adjusted */}
                     {event.image && (
                         <div className="w-full xl:w-1/3 aspect-video xl:aspect-square max-h-[200px] xl:max-h-[250px] relative rounded-xl overflow-hidden shadow-2xl border border-white/10 group shrink-0 hidden sm:block">
-                            <div
-                                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                                style={{ backgroundImage: `url(${event.image})` }}
+                            <Image
+                                src={event.image}
+                                alt={event.title || 'Latest Event Image'}
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                sizes="(max-width: 1280px) 100vw, 33vw"
+                                priority
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                         </div>
