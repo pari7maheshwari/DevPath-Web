@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Clock, BookOpen, ArrowRight, Bell } from 'lucide-react';
 import Button from '../ui/Button';
+import ShareButton from '../ui/ShareButton';
 import ComingSoonBadge from '../features/ComingSoonBadge';
 import styles from './LearningPaths.module.css';
 
@@ -126,7 +127,17 @@ export default function LearningPaths() {
                         {path.status === 'coming-soon' && <ComingSoonBadge />}
 
                         <div>
-                            <span className={styles.badge}>{path.difficulty}</span>
+                            <div className="flex justify-between items-center w-full mb-4">
+                                <span className={styles.badge} style={{ marginBottom: 0 }}>{path.difficulty}</span>
+                                <ShareButton 
+                                    url={`https://devpath.community/paths/${path.title.toLowerCase().replace(/\s+/g, '-')}`}
+                                    title={`${path.title} Roadmap`}
+                                    text={`Level up your skills with this ${path.title} roadmap on DevPath!`}
+                                    showLabel={false}
+                                    variant="ghost"
+                                    className="hover:bg-white/10 text-white"
+                                />
+                            </div>
                             <h3 className={styles.pathTitle}>{path.title}</h3>
 
                             <div className={styles.pathMeta}>
