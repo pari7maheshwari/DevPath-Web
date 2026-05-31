@@ -1,5 +1,6 @@
 "use client";
 
+import ReviewsSection from "./ReviewsSection";
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
@@ -286,6 +287,7 @@ export default function CommunityPage() {
                     </div>
                 </div>
             )}
+            <ReviewsSection />
         </div>
     );
 }
