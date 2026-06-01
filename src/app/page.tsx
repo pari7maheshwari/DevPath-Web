@@ -3,13 +3,16 @@ import { SectionDivider } from '@/components/SectionDivider';
 import { SectionEntrance } from '@/components/ui/SectionEntrance';
 import { FloatingParticles } from '@/components/FloatingParticles';
 
-import Sponsors from '@/components/home/Sponsors';
+import dynamic from 'next/dynamic';
 
-import Mission from '@/components/home/Mission';
-import CodingNews from '@/components/home/CodingNews';
-import PastCollaborations from '@/components/home/PastCollaborations';
+const Sponsors = dynamic(() => import('@/components/home/Sponsors'));
+const Mission = dynamic(() => import('@/components/home/Mission'));
+const CodingNews = dynamic(() => import('@/components/home/CodingNews'));
+const PastCollaborations = dynamic(() => import('@/components/home/PastCollaborations'));
 
 import BackToTop from '@/components/BackToTop';
+
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function Home() {
   return (
@@ -17,10 +20,14 @@ export default function Home() {
       <main className="min-h-screen bg-background">
         <FloatingParticles />
 
-        <Hero />
+        <ErrorBoundary>
+          <Hero />
+        </ErrorBoundary>
 
         <SectionEntrance delay={0.1}>
-          <CodingNews />
+          <ErrorBoundary>
+            <CodingNews />
+          </ErrorBoundary>
         </SectionEntrance>
 
         <SectionEntrance>
@@ -29,16 +36,22 @@ export default function Home() {
 
         <div id="sponsors-section">
           <SectionEntrance delay={0.2}>
-            <Sponsors />
+            <ErrorBoundary>
+              <Sponsors />
+            </ErrorBoundary>
           </SectionEntrance>
         </div>
 
         <SectionEntrance delay={0.2}>
-          <PastCollaborations />
+          <ErrorBoundary>
+            <PastCollaborations />
+          </ErrorBoundary>
         </SectionEntrance>
 
         <SectionEntrance delay={0.2}>
-          <Mission />
+          <ErrorBoundary>
+            <Mission />
+          </ErrorBoundary>
         </SectionEntrance>
       </main>
 

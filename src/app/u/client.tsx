@@ -83,7 +83,7 @@ interface Project {
     createdAt: any;
 }
 
-function ProfileContent({ uid }: { uid: string }) {
+function ProfileContent({ uid }: { uid?: string }) {
     const { user: currentUser } = useAuth();
     const { showSuccess, showError } = useNotification();
     const [user, setUser] = useState<PublicUser | null>(null);
@@ -102,12 +102,19 @@ function ProfileContent({ uid }: { uid: string }) {
 
     useEffect(() => {
         const fetchUserAndProjects = async () => {
-            if (!uid) {
+            // Extract uid from URL if not provided via prop
+            let currentUid = uid;
+            if (!currentUid) {
+                const parts = window.location.pathname.split('/');
+                currentUid = parts[parts.length - 1];
+            }
+
+            if (!currentUid || currentUid === 'u') {
                 setError('No user specified.');
                 setLoading(false);
                 return;
             }
-            if (uid.length < 3 || uid.length > 128 || /[<>"']/.test(uid)) {
+            if (currentUid.length < 3 || currentUid.length > 128 || /[<>"']/.test(currentUid)) {
                 setError('Invalid user identifier.');
                 setLoading(false);
                 return;
@@ -117,14 +124,14 @@ function ProfileContent({ uid }: { uid: string }) {
 
             try {
                 let userData: PublicUser | undefined;
-                let userId = uid;
+                let userId = currentUid;
 
                 // 1. Try fetching by Document ID from 'members'
-                let userDoc = await getDoc(doc(db, 'members', uid));
+                let userDoc = await getDoc(doc(db, 'members', currentUid));
 
                 // 2. If not found, try fetching by 'uid' field query in 'members'
                 if (!userDoc.exists()) {
-                    const q = query(collection(db, 'members'), where('uid', '==', uid));
+                    const q = query(collection(db, 'members'), where('uid', '==', currentUid));
                     const querySnapshot = await getDocs(q);
                     if (!querySnapshot.empty) {
                         userDoc = querySnapshot.docs[0];
@@ -136,11 +143,11 @@ function ProfileContent({ uid }: { uid: string }) {
 
                 // 3. If still not found, try 'admins' collection
                 if (!userDoc.exists()) {
-                    userDoc = await getDoc(doc(db, 'admins', uid));
+                    userDoc = await getDoc(doc(db, 'admins', currentUid));
                     if (userDoc.exists()) {
                         isFromAdminCollection = true;
                     } else {
-                        const q = query(collection(db, 'admins'), where('uid', '==', uid));
+                        const q = query(collection(db, 'admins'), where('uid', '==', currentUid));
                         const querySnapshot = await getDocs(q);
                         if (!querySnapshot.empty) {
                             userDoc = querySnapshot.docs[0];
@@ -175,7 +182,7 @@ function ProfileContent({ uid }: { uid: string }) {
                         }
                         // 2. Try by UID field in admins collection (fallback)
                         if (userData.role !== 'admin') {
-                            const q = query(collection(db, 'admins'), where('uid', '==', uid));
+                            const q = query(collection(db, 'admins'), where('uid', '==', currentUid));
                             const querySnapshot = await getDocs(q);
                             if (!querySnapshot.empty) {
                                 userData.role = 'admin';
@@ -756,7 +763,7 @@ function ProfileContent({ uid }: { uid: string }) {
                                             <p className="line-clamp-2">{stripHtml(project.description)}</p>
                                             <button aria-label="Action button" 
                                                 onClick={() => setSelectedProject(project)}
-                                                className="text-primary text-xs font-medium hover:underline mt-1"
+                                                className="text-primary text-xs font-medium hover:underline hover:opacity-80 transition-all duration-200 mt-1"
                                             >
                                                 Read More
                                             </button>
@@ -781,7 +788,7 @@ function ProfileContent({ uid }: { uid: string }) {
                                             <div className="flex items-center gap-4">
                                                 <button aria-label="Action button" 
                                                     onClick={() => handleLikeProject(project.id, project.likes)}
-                                                    className={`flex items-center gap-1.5 text-sm transition-colors ${currentUser && project.likes.includes(currentUser.uid) ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
+                                                    className={`flex items-center gap-1.5 text-sm transition-all duration-200 ${currentUser && project.likes.includes(currentUser.uid) ? 'text-red-500' : 'text-muted-foreground hover:text-red-500 hover:scale-105'}`}
                                                 >
                                                     <Heart size={16} fill={currentUser && project.likes.includes(currentUser.uid) ? "currentColor" : "none"} />
                                                     <span>{project.likes.length}</span>
@@ -809,7 +816,7 @@ function ProfileContent({ uid }: { uid: string }) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {user.achievements && user.achievements.length > 0 ? (
                                 user.achievements.map((badgeId, index) => (
-                                    <div key={index} className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl">
+                                    <div key={index}  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary hover:scale-105 transition-all duration-200">
                                         <div className="p-3 bg-primary/10 text-primary rounded-full">
                                             <Trophy size={24} />
                                         </div>
@@ -851,7 +858,7 @@ function ProfileContent({ uid }: { uid: string }) {
                                 <h2 className="text-xl font-bold truncate pr-4">{selectedProject.title}</h2>
                                 <button aria-label="Action button" 
                                     onClick={() => setSelectedProject(null)}
-                                    className="p-2 hover:bg-muted rounded-full transition-colors"
+                                    className="p-2 hover:bg-muted hover:scale-110 rounded-full transition-all duration-200"
                                 >
                                     <X size={20} />
                                 </button>
@@ -890,7 +897,7 @@ function ProfileContent({ uid }: { uid: string }) {
                                             href={selectedProject.websiteUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                                            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 hover:scale-105 hover:shadow-md transition-all duration-200 font-medium text-sm"
                                         >
                                             <Globe size={16} /> Visit Website
                                         </a>

@@ -10,9 +10,9 @@ import styles from './Hero.module.css';
 
 import { MagneticText } from '../ui/magnetic-text';
 
-import LatestEventsHighlight from './LatestEventsHighlight';
-import InternshipCalendarCard from './InternshipCalendarCard';
-import CertificateCard from './CertificateCard';
+const LatestEventsHighlight = dynamic(() => import('./LatestEventsHighlight'));
+const InternshipCalendarCard = dynamic(() => import('./InternshipCalendarCard'));
+const CertificateCard = dynamic(() => import('./CertificateCard'));
 import { useEffect, useState, useRef } from 'react';
 
 const HeaderScene = dynamic(() => import('@/components/3d/HeaderScene'), { ssr: false });
