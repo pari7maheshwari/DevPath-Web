@@ -99,14 +99,14 @@ export default function RepoModal({ isOpen, onClose, repo }: RepoModalProps) {
                             </div>
 
                             <div className={styles.footer}>
-                                <a href={repo.link} target="_blank" rel="noopener noreferrer" className="flex-1">
+                                <a aria-label="Link"  href={repo.link} target="_blank" rel="noopener noreferrer" className="flex-1">
                                     <Button aria-label="Action button"  variant="primary" className="w-full justify-center gap-2">
                                         <Github size={18} />
                                         View on GitHub
                                     </Button>
                                 </a>
                                 {repo.docsLink && (
-                                    <a href={repo.docsLink} target="_blank" rel="noopener noreferrer" className="flex-1">
+                                    <a aria-label="Link"  href={repo.docsLink} target="_blank" rel="noopener noreferrer" className="flex-1">
                                         <Button aria-label="Action button"  variant="secondary" className="w-full justify-center gap-2">
                                             <FileText size={18} />
                                             Documentation

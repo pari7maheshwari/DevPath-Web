@@ -455,17 +455,17 @@ function ProfileContent({ uid }: { uid?: string }) {
 
                             <div className="flex flex-wrap gap-3 mt-3">
                                 {safeSocialLinks.github && (
-                                    <a href={safeSocialLinks.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                                    <a aria-label="Link"  href={safeSocialLinks.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
                                         <Github size={14} /> GitHub
                                     </a>
                                 )}
                                 {safeSocialLinks.linkedin && (
-                                    <a href={safeSocialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                                    <a aria-label="Link"  href={safeSocialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
                                         <Linkedin size={14} /> LinkedIn
                                     </a>
                                 )}
                                 {safeSocialLinks.instagram && (
-                                    <a href={safeSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
+                                    <a aria-label="Link"  href={safeSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm hover:text-primary transition-colors">
                                         <Instagram size={14} /> Instagram
                                     </a>
                                 )}
@@ -612,7 +612,7 @@ function ProfileContent({ uid }: { uid?: string }) {
                                                             {event.type.replace('Event', '').replace(/([A-Z])/g, ' $1').trim()}
                                                         </span>
                                                         {' '}on{' '}
-                                                        <a href={event.repo.url} target="_blank" className="text-primary hover:underline font-medium">
+                                                        <a aria-label="Link"  href={event.repo.url} target="_blank" className="text-primary hover:underline font-medium">
                                                             {event.repo.name}
                                                         </a>
                                                     </p>
@@ -707,7 +707,7 @@ function ProfileContent({ uid }: { uid?: string }) {
                                     <div className="aspect-video bg-muted relative group overflow-hidden">
                                         {project.videoUrl ? (
                                             <div className="w-full h-full flex items-center justify-center bg-black/5">
-                                                <a
+                                                <a aria-label="Link" 
                                                     href={project.videoUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
@@ -747,7 +747,7 @@ function ProfileContent({ uid }: { uid?: string }) {
                                             <h3 className="font-bold text-lg line-clamp-1" title={project.title}>{project.title}</h3>
                                             <div className="flex gap-1">
                                                 {project.websiteUrl && (
-                                                    <a
+                                                    <a aria-label="Link" 
                                                         href={project.websiteUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
@@ -894,7 +894,7 @@ function ProfileContent({ uid }: { uid?: string }) {
                                 {/* Links & Skills */}
                                 <div className="flex flex-wrap gap-4 pt-4 border-t border-border">
                                     {selectedProject.websiteUrl && (
-                                        <a
+                                        <a aria-label="Link" 
                                             href={selectedProject.websiteUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"

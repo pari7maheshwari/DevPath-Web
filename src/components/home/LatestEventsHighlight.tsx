@@ -84,7 +84,7 @@ export default function LatestEventsHighlight({ className }: { className?: strin
 
                         <div className="flex flex-nowrap gap-4 pt-2">
                             {event.registerLink && (
-                                <a
+                                <a aria-label="Link" 
                                     href={event.registerLink}
                                     target="_blank"
                                     rel="noopener noreferrer"

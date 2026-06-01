@@ -426,7 +426,7 @@ useEffect(() => {
                             {user.privacySettings?.showEmail && (
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                     <LinkIcon size={16} />
-                                    <a href={`mailto:${user.email}`} className="hover:text-primary truncate">{user.email}</a>
+                                    <a aria-label="Email" href={`mailto:${user.email}`} className="hover:text-primary truncate">{user.email}</a>
                                 </div>
                             )}
                             <div className="flex items-center gap-2 text-muted-foreground">
@@ -445,9 +445,9 @@ useEffect(() => {
                         </div>
 
                         <div className="flex gap-3 mt-6">
-                            {safeSocialLinks.github && <a href={safeSocialLinks.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Github size={20} /></a>}
-                            {safeSocialLinks.linkedin && <a href={safeSocialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Linkedin size={20} /></a>}
-                            {safeSocialLinks.instagram && <a href={safeSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Instagram size={20} /></a>}
+                            {safeSocialLinks.github && <a aria-label="GitHub" href={safeSocialLinks.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Github size={20} /></a>}
+                            {safeSocialLinks.linkedin && <a aria-label="LinkedIn" href={safeSocialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Linkedin size={20} /></a>}
+                            {safeSocialLinks.instagram && <a aria-label="Instagram" href={safeSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Instagram size={20} /></a>}
                         </div>
                     </div>
 
@@ -837,7 +837,7 @@ useEffect(() => {
                                             <h4 className="font-bold truncate">{u.name}</h4>
                                             <p className="text-xs text-muted-foreground truncate">@{u.email?.split('@')[0]}</p>
                                         </div>
-                                        <a href={`/u?uid=${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
+                                        <a aria-label="View user profile" href={`/u?uid=${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
                                             View
                                         </a>
                                     </div>
@@ -882,7 +882,7 @@ useEffect(() => {
                                             <h4 className="font-bold truncate">{u.name}</h4>
                                             <p className="text-xs text-muted-foreground truncate">@{u.email?.split('@')[0]}</p>
                                         </div>
-                                        <a href={`/u/${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
+                                        <a aria-label="View user profile" href={`/u/${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
                                             View
                                         </a>
                                     </div>

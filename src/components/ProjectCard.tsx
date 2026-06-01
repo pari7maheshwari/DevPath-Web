@@ -148,7 +148,7 @@ export function ProjectCard({ project }: { project: Project }) {
                                 </div>
 
                                 <div className="flex gap-4 pt-4">
-                                    <a
+                                    <a aria-label="Link" 
                                         href={project.liveUrl || "#"}
                                         target="_blank"
                                         rel="noopener noreferrer"
@@ -158,7 +158,7 @@ export function ProjectCard({ project }: { project: Project }) {
                                         View Live Demo
                                     </a>
 
-                                    <a
+                                    <a aria-label="Link" 
                                         href={project.githubUrl || "#"}
                                         target="_blank"
                                         rel="noopener noreferrer"

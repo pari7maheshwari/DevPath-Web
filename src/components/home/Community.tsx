@@ -19,7 +19,7 @@ export default function Community() {
                         Connect with developers worldwide, share knowledge, and stay updated with the latest tech trends.
                         Get help when you&apos;re stuck and celebrate your wins together.
                     </p>
-                    <a
+                    <a aria-label="Link" 
                         href="https://chat.whatsapp.com/D2PRfQy4HYgC4XURhY2X8C"
                         target="_blank"
                         rel="noopener noreferrer"

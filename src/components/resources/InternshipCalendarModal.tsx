@@ -219,7 +219,7 @@ export function InternshipCalendarModal({ isOpen, onClose }: InternshipCalendarM
                                                     {/* Links */}
                                                     <div className={`grid gap-3 ${internship.links.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                                                         {internship.links.map((link: any, i: number) => (
-                                                            <a
+                                                            <a aria-label="Link" 
                                                                 key={i}
                                                                 href={link.url}
                                                                 target="_blank"

@@ -266,7 +266,7 @@ export default function CommunityPage() {
                             {/* Links & Skills */}
                             <div className="flex flex-wrap gap-4 pt-4 border-t border-border">
                                 {selectedProject.websiteUrl && (
-                                    <a
+                                    <a aria-label="Link" 
                                         href={selectedProject.websiteUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"

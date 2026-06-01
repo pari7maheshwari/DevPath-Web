@@ -75,7 +75,7 @@ export default function Sponsors() {
                 <div className={styles.marqueeContainer}>
                     <div className={styles.marqueeTrack}>
                         {[...communitySponsors, ...communitySponsors].map((sponsor, index) => (
-                            <a
+                            <a aria-label="Link" 
                                 key={index}
                                 href={sponsor.url}
                                 target="_blank"
@@ -104,7 +104,7 @@ export default function Sponsors() {
                 <div className={styles.marqueeContainer}>
                     <div className={styles.marqueeTrack}>
                         {[...eventSponsors, ...eventSponsors].map((sponsor, index) => (
-                            <a
+                            <a aria-label="Link" 
                                 key={index}
                                 href={sponsor.url}
                                 target="_blank"

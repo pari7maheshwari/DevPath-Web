@@ -193,6 +193,7 @@ export default function SignupPage() {
                                     </div>
                                     <div className="grid gap-3 sm:grid-cols-3">
                                         <a
+                                            aria-label="LinkedIn"
                                             href="https://www.linkedin.com/company/devpath-community/"
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -208,6 +209,7 @@ export default function SignupPage() {
                                         </a>
 
                                         <a
+                                            aria-label="Instagram"
                                             href="https://www.instagram.com/devpath_community/"
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -223,6 +225,7 @@ export default function SignupPage() {
                                         </a>
 
                                         <a
+                                            aria-label="GitHub"
                                             href="https://github.com/devpathindcommunity-india"
                                             target="_blank"
                                             rel="noopener noreferrer"

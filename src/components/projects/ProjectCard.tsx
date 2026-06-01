@@ -169,7 +169,7 @@ export default function ProjectCard({ project, isOwner, onEdit, onReadMore }: Pr
                     <h3 className="font-bold text-lg line-clamp-1 flex-1" title={project.title}>{project.title}</h3>
                     <div className="flex items-center gap-2">
                         {project.websiteUrl && (
-                            <a
+                            <a aria-label="Link" 
                                 href={project.websiteUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"

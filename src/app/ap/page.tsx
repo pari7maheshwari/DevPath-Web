@@ -129,14 +129,14 @@ export default function SuperAdminLogin() {
 
                     {/* Actions */}
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <button
+                        <button aria-label="Action button" 
                             onClick={() => router.back()}
                             className="flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-medium rounded-lg transition-colors"
                         >
                             <ArrowLeft size={15} />
                             Go Back
                         </button>
-                        <button
+                        <button aria-label="Action button" 
                             onClick={() => router.push('/')}
                             className="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
                         >

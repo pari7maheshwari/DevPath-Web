@@ -70,7 +70,7 @@ export default function Footer() {
 
                         <div className="mt-8">
                             <h4 className="text-sm font-semibold text-gray-400 mb-4">Contact Us</h4>
-                            <a
+                            <a aria-label="Link" 
                                 href={`mailto:${siteConfig.contact.email}`}
                                 className="text-sm text-cyan-400 hover:underline"
                             >

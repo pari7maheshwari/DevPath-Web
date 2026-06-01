@@ -159,7 +159,7 @@ export const wikiContent: Record<string, WikiArticle> = {
                 </p>
                 <h2>How to Get Involved</h2>
                 <ul>
-                    <li><strong>Explore Repos:</strong> Check out our <a href="/opensource" className="text-primary hover:underline">Open Source Dashboard</a> to find active projects.</li>
+                    <li><strong>Explore Repos:</strong> Check out our <a aria-label="Link"  href="/opensource" className="text-primary hover:underline">Open Source Dashboard</a> to find active projects.</li>
                     <li><strong>Pick an Issue:</strong> Look for &quot;good first issue&quot; tags if you are just starting out.</li>
                     <li><strong>Submit a PR:</strong> Fork the repo, make your changes, and submit a Pull Request. Our maintainers will review it.</li>
                 </ul>
