@@ -11,16 +11,22 @@ import PastCollaborations from '@/components/home/PastCollaborations';
 
 import BackToTop from '@/components/BackToTop';
 
+import ErrorBoundary from '@/components/ErrorBoundary';
+
 export default function Home() {
   return (
     <>
       <main className="min-h-screen bg-background">
         <FloatingParticles />
 
-        <Hero />
+        <ErrorBoundary>
+          <Hero />
+        </ErrorBoundary>
 
         <SectionEntrance delay={0.1}>
-          <CodingNews />
+          <ErrorBoundary>
+            <CodingNews />
+          </ErrorBoundary>
         </SectionEntrance>
 
         <SectionEntrance>
@@ -29,16 +35,22 @@ export default function Home() {
 
         <div id="sponsors-section">
           <SectionEntrance delay={0.2}>
-            <Sponsors />
+            <ErrorBoundary>
+              <Sponsors />
+            </ErrorBoundary>
           </SectionEntrance>
         </div>
 
         <SectionEntrance delay={0.2}>
-          <PastCollaborations />
+          <ErrorBoundary>
+            <PastCollaborations />
+          </ErrorBoundary>
         </SectionEntrance>
 
         <SectionEntrance delay={0.2}>
-          <Mission />
+          <ErrorBoundary>
+            <Mission />
+          </ErrorBoundary>
         </SectionEntrance>
       </main>
 
