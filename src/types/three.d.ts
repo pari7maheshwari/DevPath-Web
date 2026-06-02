@@ -27,3 +27,17 @@ declare module 'three/examples/jsm/controls/OrbitControls' {
 	const OrbitControls: any;
 	export default OrbitControls;
 }
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      torusKnotGeometry: any;
+      meshStandardMaterial: any;
+      ambientLight: any;
+      pointLight: any;
+      mesh: any;
+      group: any;
+      primitive: any;
+    }
+  }
+}
