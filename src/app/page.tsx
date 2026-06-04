@@ -6,16 +6,18 @@ import dynamic from 'next/dynamic';
 import BackToTop from '@/components/BackToTop';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import NextBestActionWidget from '@/components/NextBestActionWidget';
+
 const Sponsors = dynamic(() => import('@/components/home/Sponsors'));
 const Mission = dynamic(() => import('@/components/home/Mission'));
 const CodingNews = dynamic(() => import('@/components/home/CodingNews'));
 const PastCollaborations = dynamic(() => import('@/components/home/PastCollaborations'));
+
 export default function Home() {
   return (
     <>
       <main className="min-h-screen bg-background">
         <FloatingParticles />
-        <div className="max-w-6xl mx-auto px-4 pt-8">
+        <div className="max-w-6xl mx-auto px-4 pt-28">
           <NextBestActionWidget />
         </div>
         <Hero />
