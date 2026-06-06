@@ -7,9 +7,14 @@
     "build": "node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start",
     "lint": "eslint",
+    "format:check": "prettier --check .",
     "setup": "ts-node scripts/setup-project.ts",
     "test": "jest",
     "test:e2e": "playwright test"
+  },
+  "overrides": {
+    "postcss": "^8.5.10",
+    "uuid": "^11.1.1"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
@@ -62,8 +67,9 @@
     "firebase-tools": "^15.1.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.10",
     "postcss-nesting": "^13.0.2",
+    "prettier": "^3.2.5",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",

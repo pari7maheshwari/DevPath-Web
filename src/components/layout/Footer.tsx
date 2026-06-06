@@ -94,8 +94,12 @@ export default function Footer() {
               />
             </div>
             <div className={styles.links}>
-              <Link href="/terms-and-conditions" className={styles.link}>
+              <Link href="/terms" className={styles.link}>
                 <Book size={16} /> Terms & Conditions
+              </Link>
+
+              <Link href="/privacy" className={styles.link}>
+                <Shield size={16} /> Privacy Policy
               </Link>
             </div>
           </div>
