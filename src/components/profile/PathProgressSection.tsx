@@ -1,24 +1,25 @@
 // src/components/profile/PathProgressSection.tsx
-"use client";
+'use client';
 
-import type { PathProgress } from "@/types/portfolio";
+import type { PathProgress } from '@/types/portfolio';
 
 interface Props {
   paths: PathProgress[];
 }
 
 const PATH_COLORS: Record<string, string> = {
-  Frontend: "from-[#4F9EFF] to-[#818CF8]",
-  Backend: "from-[#34D399] to-[#10B981]",
-  Database: "from-[#FBBF24] to-[#F59E0B]",
-  DevOps: "from-[#F472B6] to-[#EC4899]",
-  Mobile: "from-[#A78BFA] to-[#8B5CF6]",
-  default: "from-[#60A5FA] to-[#3B82F6]",
+  Frontend: 'from-[#4F9EFF] to-[#818CF8]',
+  Backend: 'from-[#34D399] to-[#10B981]',
+  Database: 'from-[#FBBF24] to-[#F59E0B]',
+  DevOps: 'from-[#F472B6] to-[#EC4899]',
+  Mobile: 'from-[#A78BFA] to-[#8B5CF6]',
+  default: 'from-[#60A5FA] to-[#3B82F6]',
 };
 
 function getColor(pathName: string): string {
   for (const key of Object.keys(PATH_COLORS)) {
-    if (pathName.toLowerCase().includes(key.toLowerCase())) return PATH_COLORS[key];
+    if (pathName.toLowerCase().includes(key.toLowerCase()))
+      return PATH_COLORS[key];
   }
   return PATH_COLORS.default;
 }
@@ -45,7 +46,9 @@ function PathCard({ path }: { path: PathProgress }) {
   return (
     <div className="rounded-xl bg-white/5 border border-white/10 p-5">
       <div className="flex justify-between items-center mb-3">
-        <span className="text-sm font-semibold text-white">{path.pathName}</span>
+        <span className="text-sm font-semibold text-white">
+          {path.pathName}
+        </span>
         <span className="text-xs font-mono text-gray-400">
           {path.completedNodes}/{path.totalNodes} nodes
         </span>
@@ -59,7 +62,9 @@ function PathCard({ path }: { path: PathProgress }) {
         />
       </div>
 
-      <p className={`mt-2 text-right text-sm font-bold bg-gradient-to-r ${color} bg-clip-text text-transparent`}>
+      <p
+        className={`mt-2 text-right text-sm font-bold bg-gradient-to-r ${color} bg-clip-text text-transparent`}
+      >
         {pct}% Complete
       </p>
     </div>

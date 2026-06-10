@@ -12,20 +12,20 @@ import {
   getDocs,
   serverTimestamp,
   Timestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase"; // your existing firebase init
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase'; // your existing firebase init
 import type {
   UserPortfolioProfile,
   PortfolioSkill,
   PortfolioProject,
   PathProgress,
   JSONResume,
-} from "@/types/portfolio";
+} from '@/types/portfolio';
 
 // ─── Collection helpers ──────────────────────────────────────────────────────
 
-const profilesCol = () => collection(db, "portfolios");
-const profileDoc = (userId: string) => doc(db, "portfolios", userId);
+const profilesCol = () => collection(db, 'portfolios');
+const profileDoc = (userId: string) => doc(db, 'portfolios', userId);
 
 // ─── Read ────────────────────────────────────────────────────────────────────
 
@@ -48,8 +48,8 @@ export async function getPublicProfileByUsername(
 ): Promise<UserPortfolioProfile | null> {
   const q = query(
     profilesCol(),
-    where("username", "==", username),
-    where("isPublic", "==", true)
+    where('username', '==', username),
+    where('isPublic', '==', true)
   );
   const snap = await getDocs(q);
   if (snap.empty) return null;
@@ -64,7 +64,7 @@ export async function getPublicProfileByUsername(
  */
 export async function createPortfolio(
   userId: string,
-  data: Omit<UserPortfolioProfile, "userId" | "createdAt" | "updatedAt">
+  data: Omit<UserPortfolioProfile, 'userId' | 'createdAt' | 'updatedAt'>
 ): Promise<void> {
   await setDoc(profileDoc(userId), {
     ...data,
@@ -92,7 +92,12 @@ export async function setProfileVisibility(
  */
 export async function updateProfileMeta(
   userId: string,
-  patch: Partial<Pick<UserPortfolioProfile, "tagline" | "socials" | "displayName" | "avatarUrl">>
+  patch: Partial<
+    Pick<
+      UserPortfolioProfile,
+      'tagline' | 'socials' | 'displayName' | 'avatarUrl'
+    >
+  >
 ): Promise<void> {
   await updateDoc(profileDoc(userId), {
     ...patch,
@@ -188,36 +193,36 @@ export function buildJSONResume(profile: UserPortfolioProfile): JSONResume {
   const profiles = [];
   if (profile.socials.github)
     profiles.push({
-      network: "GitHub",
-      username: profile.socials.github.split("/").pop() ?? "",
+      network: 'GitHub',
+      username: profile.socials.github.split('/').pop() ?? '',
       url: profile.socials.github,
     });
   if (profile.socials.linkedin)
     profiles.push({
-      network: "LinkedIn",
-      username: profile.socials.linkedin.split("/").pop() ?? "",
+      network: 'LinkedIn',
+      username: profile.socials.linkedin.split('/').pop() ?? '',
       url: profile.socials.linkedin,
     });
   if (profile.socials.twitter)
     profiles.push({
-      network: "Twitter",
-      username: profile.socials.twitter.replace("@", ""),
-      url: `https://twitter.com/${profile.socials.twitter.replace("@", "")}`,
+      network: 'Twitter',
+      username: profile.socials.twitter.replace('@', ''),
+      url: `https://twitter.com/${profile.socials.twitter.replace('@', '')}`,
     });
 
   return {
     basics: {
       name: profile.displayName,
       label: profile.tagline,
-      url: profile.socials.website ?? "",
+      url: profile.socials.website ?? '',
       summary: `Developer profile exported from DevPath. ${profile.paths
         .map((p) => `${p.pathName}: ${p.percentage}% complete`)
-        .join(", ")}.`,
+        .join(', ')}.`,
       profiles,
     },
     skills: Object.entries(skillsByCategory).map(([category, keywords]) => ({
       name: category,
-      level: "Intermediate",
+      level: 'Intermediate',
       keywords,
     })),
     projects: profile.projects.map((p) => ({
@@ -225,12 +230,12 @@ export function buildJSONResume(profile: UserPortfolioProfile): JSONResume {
       description: p.description,
       highlights: p.techStack ?? [],
       url: p.liveUrl ?? p.githubUrl,
-      roles: ["Developer"],
-      type: "application",
+      roles: ['Developer'],
+      type: 'application',
     })),
     meta: {
       canonical: `https://devpath.app/profile/${profile.username}`,
-      version: "v1.0.0",
+      version: 'v1.0.0',
       lastModified: new Date().toISOString(),
     },
   };

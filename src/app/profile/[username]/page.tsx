@@ -1,14 +1,14 @@
 // src/app/profile/[username]/page.tsx
 // Public-facing portfolio route: /profile/[username]
 
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getPublicProfileByUsername } from "@/lib/portfolio-service";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { PathProgressSection } from "@/components/profile/PathProgressSection";
-import { SkillBadgesSection } from "@/components/profile/SkillBadgesSection";
-import { ProjectShowcaseSection } from "@/components/profile/ProjectShowcaseSection";
-import { ExportBar } from "@/components/profile/ExportBar";
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getPublicProfileByUsername } from '@/lib/portfolio-service';
+import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import { PathProgressSection } from '@/components/profile/PathProgressSection';
+import { SkillBadgesSection } from '@/components/profile/SkillBadgesSection';
+import { ProjectShowcaseSection } from '@/components/profile/ProjectShowcaseSection';
+import { ExportBar } from '@/components/profile/ExportBar';
 
 interface Props {
   params: { username: string };
@@ -17,7 +17,7 @@ interface Props {
 // Generate OpenGraph metadata dynamically
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const profile = await getPublicProfileByUsername(params.username);
-  if (!profile) return { title: "Profile not found" };
+  if (!profile) return { title: 'Profile not found' };
 
   return {
     title: `${profile.displayName} · DevPath Portfolio`,

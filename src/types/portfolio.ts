@@ -28,7 +28,7 @@ export interface PortfolioSkill {
   nodeId: string;
   skillName: string;
   category: string; // e.g., "Frontend", "Database", "DevOps"
-  level?: "beginner" | "intermediate" | "advanced";
+  level?: 'beginner' | 'intermediate' | 'advanced';
   completedAt: Date;
 }
 

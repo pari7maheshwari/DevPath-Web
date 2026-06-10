@@ -1,8 +1,8 @@
 // src/components/profile/ProjectShowcaseSection.tsx
-"use client";
+'use client';
 
-import { ExternalLink, Github } from "lucide-react";
-import type { PortfolioProject } from "@/types/portfolio";
+import { ExternalLink, Github } from 'lucide-react';
+import type { PortfolioProject } from '@/types/portfolio';
 
 interface Props {
   projects: PortfolioProject[];
@@ -35,7 +35,9 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
     <article className="group relative rounded-xl bg-white/5 border border-white/10 p-5 flex flex-col gap-3 hover:border-[#4F9EFF]/40 hover:bg-white/[0.07] transition-all duration-200">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-white leading-tight">{project.projectName}</h3>
+        <h3 className="font-semibold text-white leading-tight">
+          {project.projectName}
+        </h3>
         <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-mono rounded bg-[#4F9EFF]/20 text-[#4F9EFF]">
           verified
         </span>
@@ -88,9 +90,9 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
           </a>
         )}
         <span className="ml-auto text-[10px] font-mono text-gray-600">
-          {project.completedAt.toLocaleDateString("en-US", {
-            month: "short",
-            year: "numeric",
+          {project.completedAt.toLocaleDateString('en-US', {
+            month: 'short',
+            year: 'numeric',
           })}
         </span>
       </div>

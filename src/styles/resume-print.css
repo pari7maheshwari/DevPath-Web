@@ -1,4 +1,3 @@
-
 @media print {
   body {
     background: none !important;
@@ -20,7 +19,7 @@
   #resume-print-root {
     background: #fff !important;
     color: #000 !important;
-    font-family: "Georgia", serif !important;
+    font-family: 'Georgia', serif !important;
     padding: 20mm 15mm !important;
   }
 
@@ -39,7 +38,7 @@
 
   /* Ensure links print with their URL visible */
   a[href]::after {
-    content: " (" attr(href) ")";
+    content: ' (' attr(href) ')';
     font-size: 8pt;
     color: #666;
   }
