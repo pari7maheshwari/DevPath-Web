@@ -1,17 +1,17 @@
-name: Migrate Labels from Issue to PR
+name: Migrate Labels and Assignees from Issue to PR
 
 on:
   pull_request_target:
     types: [opened, edited]
 
 jobs:
-  migrate-labels:
+  migrate-labels-and-assignees:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
       issues: read
     steps:
-      - name: Migrate Labels
+      - name: Migrate Labels and Assignees
         uses: actions/github-script@v7
         with:
           script: |
@@ -37,6 +37,7 @@ jobs:
             console.log(`Found linked issues: ${issueNumbers.join(", ")}`);
 
             const labelsToAdd = new Set();
+            const assigneesToAdd = new Set();
 
             for (const issueNumber of issueNumbers) {
               try {
@@ -48,6 +49,12 @@ jobs:
                 
                 for (const label of issue.data.labels) {
                   labelsToAdd.add(label.name);
+                }
+                
+                if (issue.data.assignees) {
+                  for (const assignee of issue.data.assignees) {
+                    assigneesToAdd.add(assignee.login);
+                  }
                 }
               } catch (error) {
                 console.log(`Could not fetch issue #${issueNumber}: ${error.message}`);
@@ -64,4 +71,16 @@ jobs:
               });
             } else {
               console.log("No labels to migrate");
+            }
+            
+            if (assigneesToAdd.size > 0) {
+              console.log(`Adding assignees: ${Array.from(assigneesToAdd).join(", ")}`);
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                assignees: Array.from(assigneesToAdd)
+              });
+            } else {
+              console.log("No assignees to migrate");
             }
