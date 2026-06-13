@@ -134,7 +134,11 @@ export default function Navbar() {
                 );
               })}
             </div>
+            
+            {/* Scroll Progress Line attached to Pill */}
+
           </div>
+          <motion.div className={styles.progressBar} style={{ scaleX }} />
 
           {/* Actions */}
           <div
