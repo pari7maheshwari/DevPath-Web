@@ -12,11 +12,11 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
-  User as FirebaseUser,
   setPersistence,
   browserLocalPersistence,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import type { FieldValue } from 'firebase/firestore';
 import { leaderboardSyncErrorEmitter } from '@/lib/leaderboard-sync-error';
 
 interface User {
@@ -63,7 +63,7 @@ interface User {
     followers?: number;
     following?: number;
     contributions?: number;
-    lastFetched?: any;
+    lastFetched?: unknown;
     recentActivity?: {
       id: string;
       type: string;
@@ -88,7 +88,7 @@ interface User {
   badges?: string[];
   sessionId?: string;
   docId?: string; // Actual Firestore Document ID (Email or UID)
-  createdAt?: any;
+  createdAt?: unknown;
 }
 
 interface AuthContextType {
@@ -174,11 +174,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // This ensures their session is tracked and they are validated securely via Firestore `admins` collection.
 
           let role: 'admin' | 'member' = 'member';
-          let userData: any = {
+          let userData: User & Record<string, unknown> = {
             uid: firebaseUser.uid,
             email: firebaseUser.email,
             name: firebaseUser.displayName,
             photoURL: firebaseUser.photoURL,
+            role,
             showMobile: false,
             showLocation: true,
             showEmail: false,
@@ -340,10 +341,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { calculateStreak, getISTDateString } =
             await import('@/lib/streakUtils');
           const today = getISTDateString(new Date());
-          let loginDates = userData.loginDates || [];
+          const loginDates = userData.loginDates || [];
           let shouldUpdate = false;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const updateData: Record<string, any> = {};
+          const updateData: Record<string, unknown> = {};
           let pointsDelta = 0;
 
           // 1. Check if new day login
@@ -358,9 +358,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { currentStreak } = calculateStreak(loginDates);
 
           if (shouldUpdate || userData.streak !== currentStreak) {
-            // Award 1 XP if streak increased (Daily Login)
+            // Award daily login XP plus a capped streak multiplier.
             if (currentStreak > (userData.streak || 0)) {
-              pointsDelta += POINTS.DAILY_LOGIN;
+              const streakMultiplier = Math.min(
+                Math.max(currentStreak - 1, 0),
+                6
+              );
+              pointsDelta +=
+                POINTS.DAILY_LOGIN +
+                streakMultiplier * POINTS.STREAK_BONUS_PER_DAY;
 
               // 7-Day Streak Bonus
               if (currentStreak % 7 === 0 && currentStreak > 0) {
@@ -376,7 +382,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (shouldUpdate) {
             const { increment } = await import('firebase/firestore');
 
-            const firestoreUpdate: any = { ...updateData };
+            const firestoreUpdate: Record<string, unknown> = { ...updateData };
             if (pointsDelta > 0) {
               firestoreUpdate.points = increment(pointsDelta);
             }
@@ -443,7 +449,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         unsubscribeSnapshot.current();
       }
     };
-  }, []);
+  }, [firebaseReady]);
 
   const verifyAdmin = () => {
     setIsAdminVerified(true);
@@ -508,14 +514,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Remove undefined fields
       const cleanData = Object.fromEntries(
-        Object.entries(data).filter(([_, v]) => v !== undefined)
-      );
+        Object.entries(data).filter(([, value]) => value !== undefined)
+      ) as Partial<User>;
 
-      if ((cleanData as any).points !== undefined) {
+      if (cleanData.points !== undefined) {
         console.warn(
           '[updateUserProfile] Ignoring `points` field. Use awardPoints(pointsDelta) instead.'
         );
-        delete (cleanData as any).points;
+        delete cleanData.points;
       }
 
       await setDoc(doc(db, collectionName, docId), cleanData, { merge: true });
@@ -588,8 +594,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const followUser = async (
     targetUserId: string,
-    targetRole: string = 'member',
-    targetEmail?: string
+    targetRole: string = 'member'
   ) => {
     if (!firebaseReady || !user) return;
     if (user.uid === targetUserId) return; // Cannot follow self
@@ -620,7 +625,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const targetUserRef = doc(db, targetCollection, targetDocId);
 
-      const updateData: any = {
+      const updateData: { followers: FieldValue; points?: FieldValue } = {
         followers: arrayUnion(user.uid),
       };
 
@@ -666,8 +671,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const unfollowUser = async (
     targetUserId: string,
-    targetRole: string = 'member',
-    targetEmail?: string
+    targetRole: string = 'member'
   ) => {
     if (!firebaseReady || !user) return;
     if (user.email === SUPER_ADMIN_EMAIL) return; // Super Admin Guard
@@ -696,7 +700,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const targetUserRef = doc(db, targetCollection, targetDocId);
 
-      const updateData: any = {
+      const updateData: { followers: FieldValue; points?: FieldValue } = {
         followers: arrayRemove(user.uid),
       };
 
