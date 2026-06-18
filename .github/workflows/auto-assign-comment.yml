@@ -4,6 +4,9 @@ on:
   issues:
     types: [assigned]
 
+permissions:
+  issues: write
+
 jobs:
   comment:
     runs-on: ubuntu-latest

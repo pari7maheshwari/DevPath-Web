@@ -281,7 +281,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 // Create the new member document
                 await setDoc(memberDocRef, defaultUserData);
-                userData = { ...userData, ...defaultUserData };
+                userData = { ...userData, ...defaultUserData } as any;
               }
             } catch (error) {
               console.error('Error fetching/creating member data:', error);

@@ -563,9 +563,9 @@ export default function UserProfile() {
                     if (!user.createdAt) return 'Dec 2023';
                     try {
                       const d = new Date(
-                        user.createdAt.seconds
-                          ? user.createdAt.seconds * 1000
-                          : user.createdAt
+                        (user.createdAt as any).seconds
+                          ? (user.createdAt as any).seconds * 1000
+                          : (user.createdAt as any)
                       );
                       if (isNaN(d.getTime())) return 'Dec 2023';
                       return d.toLocaleDateString(undefined, {
