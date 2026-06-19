@@ -149,6 +149,31 @@ export default function SkillTreeVisualizer({
       window.removeEventListener('close-all-overlays', handleCloseAll);
   }, []);
 
+  // Bind local arrow key shortcuts for node selection cycling
+  useKeyboardShortcuts({
+    arrowright: () => {
+      if (nodes.length === 0) return;
+      const currentIndex = selectedNode ? nodes.findIndex((n) => n.id === selectedNode.id) : -1;
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % nodes.length;
+      setSelectedNode(nodes[nextIndex]);
+    },
+    arrowleft: () => {
+      if (nodes.length === 0) return;
+      const currentIndex = selectedNode ? nodes.findIndex((n) => n.id === selectedNode.id) : -1;
+      const prevIndex = currentIndex === -1 ? nodes.length - 1 : (currentIndex - 1 + nodes.length) % nodes.length;
+      setSelectedNode(nodes[prevIndex]);
+    },
+  });
+
+  // Listen for the escape close-all-overlays event to close the side drawer
+  useEffect(() => {
+    const handleCloseAll = () => {
+      setSelectedNode(null);
+    };
+    window.addEventListener('close-all-overlays', handleCloseAll);
+    return () => window.removeEventListener('close-all-overlays', handleCloseAll);
+  }, []);
+
   return (
     <div
       className={`${styles.container} w-full flex flex-col items-center bg-[#0f1115] p-6 rounded-xl border border-slate-800`}
